@@ -1,0 +1,66 @@
+#task 4
+import pandas as pd
+from sklearn.metrics.pairwise import cosine_similarity
+from sklearn.model_selection import train_test_split
+
+# Generate sample data and save as CSV
+data = {
+    'user_id': [1, 1, 1, 2, 2, 3, 3, 3, 3],
+    'movie_id': [101, 102, 103, 101, 104, 102, 103, 105, 106],
+    'rating': [5, 4, 3, 4, 5, 2, 5, 3, 4]
+}
+
+df = pd.DataFrame(data)
+df.to_csv('sample_movie_ratings.csv', index=False)
+print("CSV file created successfully!")
+
+# Load the dataset
+data = pd.read_csv('sample_movie_ratings.csv')
+
+# Preprocessing
+data = data.drop_duplicates()
+user_movie_matrix = data.pivot_table(index='user_id', columns='movie_id', values='rating').fillna(0)
+train_data, test_data = train_test_split(data, test_size=0.2, random_state=42)
+user_similarity = cosine_similarity(user_movie_matrix)
+user_similarity_df = pd.DataFrame(user_similarity, index=user_movie_matrix.index, columns=user_movie_matrix.index)
+
+def get_recommendations(user_id, num_recommendations=5):
+    sim_scores = user_similarity_df[user_id]
+    user_rated_movies = user_movie_matrix.loc[user_id]
+    weighted_ratings = user_movie_matrix.T.dot(sim_scores)
+    sim_sums = sim_scores.sum()
+    weighted_avg_ratings = weighted_ratings / sim_sums
+    recommendations = weighted_avg_ratings.drop(user_rated_movies[user_rated_movies > 0].index, errors='ignore')
+    top_recommendations = recommendations.nlargest(num_recommendations)
+    return top_recommendations
+
+def evaluate_model(test_data):
+    total_users = test_data['user_id'].nunique()
+    total_items = test_data['movie_id'].nunique()
+    total_ratings = len(test_data)
+    total_recommendations = 0
+    total_correct_recommendations = 0
+    
+    for user_id in test_data['user_id'].unique():
+        user_test_data = test_data[test_data['user_id'] == user_id]
+        user_recommendations = get_recommendations(user_id, num_recommendations=5)
+        correct_recommendations = user_test_data[user_test_data['movie_id'].isin(user_recommendations.index)]
+        total_correct_recommendations += len(correct_recommendations)
+        total_recommendations += len(user_recommendations)
+        
+    precision = total_correct_recommendations / total_recommendations if total_recommendations > 0 else 0
+    recall = total_correct_recommendations / total_ratings if total_ratings > 0 else 0
+    f1_score = 2 * (precision * recall) / (precision + recall) if (precision + recall) > 0 else 0
+    
+    return precision, recall, f1_score
+
+# Example usage
+user_id = 1  # Replace with a user ID from your dataset
+recommendations = get_recommendations(user_id)
+print("Recommendations for user", user_id, ":", recommendations)
+
+# Example evaluation
+precision, recall, f1_score = evaluate_model(test_data)
+print("Precision:", precision)
+print("Recall:", recall)
+print("F1 Score:", f1_score)

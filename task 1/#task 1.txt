@@ -1,0 +1,85 @@
+#task 1
+import random
+from datetime import datetime
+
+def chatbot_response(user_input):
+    user_input = user_input.lower().strip()
+
+    greetings = ["hello", "hi", "hey", "greetings", "sup", "what's up"]
+    farewells = ["bye", "goodbye", "see you", "exit", "quit"]
+    status_inquiries = ["how are you", "how are you doing", "how's it going"]
+    capabilities = ["what can you do", "your capabilities", "help"]
+    thank_you_responses = ["thanks", "thank you", "much appreciated"]
+    jokes = ["joke", "make me laugh", "tell me something funny"]
+    news_inquiries = ["news", "current events", "what's happening"]
+    colors = ["favorite color", "color you like"]
+    creator = ["who created you", "who made you", "your creator"]
+
+    if any(greeting in user_input for greeting in greetings):
+        return random.choice([
+            "Hello! How can I help you today?",
+            "Hi there! What can I do for you?",
+            "Hey! How's it going?"
+        ])
+    elif any(farewell in user_input for farewell in farewells):
+        return "Goodbye! Have a great day!"
+    elif any(status in user_input for status in status_inquiries):
+        return "I'm just a bot, but I'm here to help you!"
+    elif any(capability in user_input for capability in capabilities):
+        return ("I can help with the following:\n"
+                "- Greetings\n"
+                "- Current time\n"
+                "- Current date\n"
+                "- Telling a joke\n"
+                "- Describing what I can do\n"
+                "- Provide my name\n"
+                "- Weather suggestions\n"
+                "- News suggestions\n"
+                "- Fun facts\n"
+                "- Conversational questions\n"
+                "Type 'bye', 'goodbye', or 'exit' to end the chat.")
+    elif any(thank in user_input for thank in thank_you_responses):
+        return "You're welcome! How else can I assist you?"
+    elif any(joke in user_input for joke in jokes):
+        jokes_list = [
+            "Why don't scientists trust atoms? Because they make up everything!",
+            "Why did the scarecrow win an award? Because he was outstanding in his field!",
+            "Why don't skeletons fight each other? They don't have the guts."
+        ]
+        return random.choice(jokes_list)
+    elif any(news in user_input for news in news_inquiries):
+        return "I'm unable to fetch live news, but you can check out news websites or apps!"
+    elif any(color in user_input for color in colors):
+        return "As an AI, I don't have preferences, but I think blue is quite nice!"
+    elif any(creator_question in user_input for creator_question in creator):
+        return "I was created by OpenAI to assist with various tasks and provide information."
+    elif "time" in user_input:
+        return f"The current time is {datetime.now().strftime('%H:%M:%S')}."
+    elif "date" in user_input:
+        return f"Today's date is {datetime.now().strftime('%Y-%m-%d')}."
+    elif "weather" in user_input:
+        return "I can't check the weather, but try a weather app or website!"
+    elif "fact" in user_input:
+        facts = [
+            "Did you know? Honey never spoils.",
+            "Did you know? Octopuses have three hearts.",
+            "Did you know? Bananas are berries but strawberries aren't."
+        ]
+        return random.choice(facts)
+    else:
+        return "I'm sorry, I don't understand that. Can you please rephrase?"
+
+def chat():
+    print("Chatbot: Hello! I am Chatbot. How can I assist you today?")
+    while True:
+        user_input = input("You: ").strip().lower()
+        if user_input in ["bye", "goodbye", "exit"]:
+            print("Chatbot: Goodbye! Have a great day!")
+            break
+        print(f"Chatbot: {chatbot_response(user_input)}")
+
+def main():
+    chat()
+
+if __name__ == "__main__":
+    main()
